@@ -52,10 +52,10 @@ addCard(char st[])
 
     int temp = 0;
     FILE *data;
-    data = fopen("uuid.txt","a");
     if(digitalRead(BUTTON_ADD_CARD))
     {
         printf("Write DATABASE (uuid.txt) %s\n", st);
+    	data = fopen("uuid.txt","a");
         fprintf(data,"%s\n",st);
         printf("addCard %s\n", st);
         fclose(data);
@@ -63,7 +63,6 @@ addCard(char st[])
         addCardSound();
         return 0;
     }
-    fclose(data);
 
     return 1;
 }
