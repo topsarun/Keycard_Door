@@ -140,17 +140,18 @@ int main (void)
     char temp[15],ch[15];
 
     load();
-int loop = 10;
-while (loop > 0) {
-    digitalWrite (27, 1) ;
-	delay(500);
-    digitalWrite (27, 0) ;
-	delay(500);
-loop--;
-}
+	int loop = 10;
+	while (loop > 0) 
+	{
+	    digitalWrite (27, 0) ;
+		delay(500);
+	    digitalWrite (27, 1) ;
+		delay(500);
+		loop--;
+	}
     while(1)
     {
-    	serialFlush(fd);
+		serialFlush(fd);
         readbutton();
         fflush (stdout) ;
         fflush (stdin) ;
@@ -181,12 +182,10 @@ loop--;
             else
             {
                 printf("%s not found!\n",ch);
-		if (addCard(ch))
+				if (addCard(ch))
                 	accessdenied();
             }
         }
     }
     return 0 ;
 }
-
-
