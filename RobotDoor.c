@@ -59,7 +59,7 @@ addCard(char st[])
         fprintf(data,"%s\n",st);
         printf("addCard %s\n", st);
         fclose(data);
-	load();
+		load();
         addCardSound();
         return 0;
     }
@@ -132,6 +132,7 @@ int main (void)
         return 1 ;
     }
     pinMode (27, OUTPUT) ;
+	pinMode(BUTTON_ADD_CARD, OUTPUT);
 
     pinMode (DOOR, OUTPUT) ;
     digitalWrite (DOOR, LOW) ;
