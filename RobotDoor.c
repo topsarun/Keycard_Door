@@ -132,7 +132,7 @@ int main (void)
         return 1 ;
     }
     pinMode (27, OUTPUT) ;
-	pinMode(BUTTON_ADD_CARD, OUTPUT);
+	pinMode(BUTTON_ADD_CARD, INPUT);
 
     pinMode (DOOR, OUTPUT) ;
     digitalWrite (DOOR, LOW) ;
