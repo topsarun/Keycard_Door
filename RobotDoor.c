@@ -3,9 +3,9 @@
 #include <wiringPi.h>
 #include <wiringSerial.h>
 #define MAX 500
-#define	DOOR 1
+#define DOOR 1
 #define BUZZ 0
-#define BUTTON 2
+#define BUTTON 6
 #define BUTTON_ADD_CARD 4
 #define LED_STATUS 27
 
@@ -44,6 +44,7 @@ addCardSound()
     delay (100);
     digitalWrite(BUZZ, HIGH);
     delay (500);
+
     digitalWrite(BUZZ, LOW);
     return 0;
 }
@@ -51,16 +52,17 @@ addCard(char st[])
 {
 
     int temp = 0;
-    FILE *data;
+    FILE *data = 0;
+    pinMode (BUTTON_ADD_CARD, INPUT) ;
     if(digitalRead(BUTTON_ADD_CARD))
     {
         printf("Write DATABASE (uuid.txt) %s\n", st);
-    	data = fopen("uuid.txt","a");
+        data = fopen("uuid.txt","a");
         fprintf(data,"%s\n",st);
         printf("addCard %s\n", st);
         fclose(data);
-		load();
-        addCardSound();
+        load();
+        //addCardSound();
         return 0;
     }
 
@@ -132,8 +134,6 @@ int main (void)
         return 1 ;
     }
     pinMode (27, OUTPUT) ;
-	pinMode(BUTTON_ADD_CARD, INPUT);
-
     pinMode (DOOR, OUTPUT) ;
     digitalWrite (DOOR, LOW) ;
     FILE * uuid ;
@@ -141,51 +141,70 @@ int main (void)
 
     load();
 	int loop = 10;
-	while (loop > 0) 
-	{
-	    digitalWrite (27, 0) ;
-		delay(500);
-	    digitalWrite (27, 1) ;
-		delay(500);
-		loop--;
-	}
-    while(1)
-    {
-		serialFlush(fd);
-        readbutton();
-        fflush (stdout) ;
-        fflush (stdin) ;
+	//while (loop > 0) {
+	//    digitalWrite (27, 0) ;
+	//      delay(500);
+	//    digitalWrite (27, 1) ;
+	//      delay(500);
+	//      loop--;
+	//}
+	int startRFID = 0;
+	char tmpChar = '\0';
+	int k = 0;
+	    while(1)
+	    {
+	        serialFlush(fd);
+	        readbutton();
+	        fflush (stdout) ;
+
+	                fflush (stdin) ;
         if(serialDataAvail(fd)>0)
         {
-            j=0; found=0;
-            for(i=0;i<14;i++)
-            {
-                temp[i] = serialGetchar (fd) ;
-                if(temp[i]>='0'&&temp[i]<='9')
+                printf("%s\n", "inloop for");
+                j=0; found=0; startRFID = 0;
+                loop = 14;
+                k = 0;
+                for (j=0;j<25;j++)
                 {
-                    ch[j++] = temp[i];
-                }
-            }
-            ch[j] = '\0' ;
-            for(i=0;i<MAX;i++)
-            {
-                if(strcmp(ch,x[i].uuid)==0)
+                    tmpChar = serialGetchar (fd);
+                    printf("num %d\n", (int)(tmpChar));
+                    ch[k] = '\0';
+                    if ((int)tmpChar == 2)
+                    {
+                        startRFID = 1;
+                    }
+
+                    if ((int)tmpChar == 3 || (int)tmpChar == 255)
+                    {
+                        break;
+                    }
+                    if (startRFID && tmpChar>='0'&&tmpChar<='9')
+                        ch[k++] = tmpChar;
+                                    }
+                printf("\n%s\n", "outloop for");
+                for(i=0;i<MAX;i++)
                 {
-                    found ++;
+                        printf("len : %d\n", strlen(ch));
+                    if(strcmp(ch,x[i].uuid)==0 && strlen(ch) == 10)
+                    {
+                        found ++;
+                    }
                 }
-            }
-            if(found>0)
-            {
-                printf("%s found\n",ch);
-                access();
-            }
-            else
-            {
-                printf("%s not found!\n",ch);
-				if (addCard(ch))
-                	accessdenied();
-            }
+                if(found>0)
+                {
+                    printf("%s found\n",ch);
+                    access();
+                }
+                else if (strlen(ch) == 10)
+                {
+                    printf("%s not found!\n",ch);
+                    if (addCard(ch))
+                        accessdenied();
+                }
         }
     }
     return 0 ;
 }
+
+
+
